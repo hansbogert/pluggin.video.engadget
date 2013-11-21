@@ -95,7 +95,7 @@ def resolve_url(url):
             i in link_cache if i.has_key(video_id)][0]
         addon_log('return item from cache')
     except:
-        addon_log(format_exc())
+        addon_log('addonException: %s' %format_exc())
         item = cache_playlist(video_id)
     if item:
         extension_format = '_%s.%s?cat=Tech&subcat=Web'

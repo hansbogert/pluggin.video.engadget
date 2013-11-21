@@ -23,7 +23,7 @@
     <platform>all</platform>
     <language>en</language>
     <license>GNU GENERAL PUBLIC LICENSE. Version 2, June 1991</license>
-    <source></source>
-    <forum></forum>
+    <source>https://github.com/divingmule/pluggin.video.engadget</source>
+    <forum>http://forum.xbmc.org/showthread.php?tid=178562</forum>
   </extension>
 </addon>
