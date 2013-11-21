@@ -27,14 +27,14 @@ def addon_log(string):
         log_message = string.encode('utf-8', 'ignore')
     except:
         log_message = 'addonException: addon_log'
-    xbmc.log("[%s-%s]: %s" %(addon_id, addon_version, log_message),level=xbmc.LOGNOTICE)
+    xbmc.log("[%s-%s]: %s" %(addon_id, addon_version, log_message),level=xbmc.LOGDEBUG)
 
 
 def make_request(url):
     addon_log('Request URL: %s' %url)
     headers = {
-        'User-agent' : 'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:24.0) Gecko/20100101 Firefox/24.0',
-        'Referer' : base_url
+        'User-agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:24.0) Gecko/20100101 Firefox/24.0',
+        'Referer': base_url
         }
     try:
         req = urllib2.Request(url,None,headers)
@@ -69,7 +69,8 @@ def display_category(url):
     soup = BeautifulSoup(make_request(page_url), 'html.parser')
     items = soup('div', class_='video-listing')[0]('a')
     for i in items:
-        add_dir(i.h3.string, i['href'], i.img['src'], 'resolve_url', False)
+        title = i.h3.string.encode('utf-8')
+        add_dir(title, i['href'], i.img['src'], 'resolve_url', False)
     try:
         next_page = soup.find('li', class_='older').a['href']
         add_dir(language(30008), next_page, icon, 'get_category')
@@ -100,8 +101,8 @@ def resolve_url(url):
         extension_format = '_%s.%s?cat=Tech&subcat=Web'
         stream_url = urllib.unquote(item[0]).split('.mp4')[0]
         addon_log('preferred setting: %s' %settings[preferred])
-        for i in item[1]:
-            addon_log('%s: %s' %(i['ID'], i['RenditionType']))
+        # for i in item[1]:
+            # addon_log('%s: %s' %(i['ID'], i['RenditionType']))
         resolved_url = None
         while (preferred >= 0) and not resolved_url:
             try:
@@ -111,7 +112,7 @@ def resolve_url(url):
                 resolved_url = stream_url + extension_format %(ren_id, ren_type)
                 addon_log('Resolved: %s' %resolved_url)
             except:
-                addon_log(format_exc())
+                addon_log('addonException: %s' %format_exc())
                 addon_log('Setting unavailabel: %s' %settings[preferred])
                 preferred -= 1
         return resolved_url
@@ -149,7 +150,7 @@ def cache_playlist(video_id):
         if len(link_cache) > 300:
             del link_cache[:100]
     except:
-        addon_log('addonException: %s' %format_exe())
+        addon_log('addonException: %s' %format_exc())
         link_cache = []
     for i in items:
         match = pattern.findall(i['EmbededURL'])
@@ -158,7 +159,7 @@ def cache_playlist(video_id):
                                         'ren': i['Renditions']}}
             link_cache.append(item_dict)
         except:
-            addon_log('addonException: %s' %format_exe())
+            addon_log('addonException: %s' %format_exc())
     cache.set('link_cache', repr(link_cache))
     addon_log('link_cache items %s' %len(link_cache))
     try:
