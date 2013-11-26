@@ -166,8 +166,7 @@ def cache_playlist(video_id):
         return [(i[video_id]['url'], i[video_id]['ren']) for
             i in link_cache if i.has_key(video_id)][0]
     except:
-        print format_exc()
-        print link_cache[0]
+        addon_log('addonException: %s' %format_exc())
 
 
 def add_dir(name, url, iconimage, mode, isfolder=True):
