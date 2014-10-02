@@ -1,3 +1,6 @@
+Version 1.0.5
+fix for changed engadget website (scraping rules are working again)
+
 Version 1.0.4
 update for frodo/gotham
 content is now scraped from the website, http://www.engadget.com/videos/

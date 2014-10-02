@@ -66,11 +66,12 @@ def display_categories():
 
 def display_category(url):
     page_url = base_url + url
+    print page_url
     soup = BeautifulSoup(make_request(page_url), 'html.parser')
-    items = soup('div', class_='video-listing')[0]('a')
+    items =  soup('div', {'class' : 'video-listing'})[0]('a', {'data-swiftype-name':'url'})
     for i in items:
         title = i.h3.string.encode('utf-8')
-        add_dir(title, i['href'], i.img['src'], 'resolve_url', False)
+        add_dir(title, i['href'], None, 'resolve_url', False)
     try:
         next_page = soup.find('li', class_='older').a['href']
         add_dir(language(30008), next_page, icon, 'get_category')
@@ -121,8 +122,12 @@ def resolve_url(url):
 def cache_playlist(video_id):
     url = 'http://syn.5min.com/handlers/SenseHandler.ashx?'
     script_url = 'http://www.engadget.com/embed-5min/?playList=%s&autoStart=true' %video_id
-    script_soup = BeautifulSoup(make_request(script_url))
+    script_html = make_request(script_url)
+    # workaround: soup dies on the script tag
+    script_html2 = script_html.replace('</scr" + "ipt>"',"")
+    script_soup = BeautifulSoup(script_html2, 'html.parser')
     script = script_soup.script.get_text()
+    #FIXME: There is a security risk in eval() because the originating text stems from the server <>
     script_params = eval((script[5:].replace('\r\n', '').split('+')[0]+'}'))
     params = {
         'ExposureType': 'PlayerSeed',
