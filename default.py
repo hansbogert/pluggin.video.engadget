@@ -66,12 +66,14 @@ def display_categories():
 
 def display_category(url):
     page_url = base_url + url
-    print page_url
     soup = BeautifulSoup(make_request(page_url), 'html.parser')
-    items =  soup('div', {'class' : 'video-listing'})[0]('a', {'data-swiftype-name':'url'})
+    items =  soup('div', {'class' : 'video-listing'})
+    items =  soup('div', {'class' : 'video-listing'})[0]('div', {'class':'video'})
     for i in items:
-        title = i.h3.string.encode('utf-8')
-        add_dir(title, i['href'], None, 'resolve_url', False)
+        title = i('a', {'class':'video-link'})[1].h3.string.encode('utf-8')
+        link = i('a', {'class':'video-link'})[1]['href']
+        img = i('a', {'class':'video-link'})[0].img['src']
+        add_dir(title, link, img, 'resolve_url', False)
     try:
         next_page = soup.find('li', class_='older').a['href']
         add_dir(language(30008), next_page, icon, 'get_category')
