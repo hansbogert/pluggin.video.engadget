@@ -1,21 +1,26 @@
-﻿import urllib
+import os
+import urllib
 import urllib2
 import re
 import json
-from urlparse import urlparse, parse_qs
-from traceback import format_exc
-
 import StorageServer
-from bs4 import BeautifulSoup
-
 import xbmcplugin
 import xbmcgui
 import xbmcaddon
+from urlparse import urlparse, parse_qs
+from traceback import format_exc
 
 addon = xbmcaddon.Addon()
 addon_profile = xbmc.translatePath(addon.getAddonInfo('profile'))
 addon_version = addon.getAddonInfo('version')
 addon_id = addon.getAddonInfo('id')
+addon_dir = xbmc.translatePath( addon.getAddonInfo('path') )
+sys.path.append(os.path.join( addon_dir, 'resources', 'lib' ) )
+
+# Do extra imports including html5lib from local addon dir
+import html5lib
+from bs4 import BeautifulSoup
+
 cache = StorageServer.StorageServer("engadget", 24)
 icon = addon.getAddonInfo('icon')
 language = addon.getLocalizedString
@@ -66,8 +71,8 @@ def display_categories():
 
 def display_category(url):
     page_url = base_url + url
-    soup = BeautifulSoup(make_request(page_url), 'html.parser')
-    items =  soup('div', {'class' : 'video-listing'})
+    html = make_request(page_url)
+    soup = BeautifulSoup(html, 'html5lib')
     items =  soup('div', {'class' : 'video-listing'})[0]('div', {'class':'video'})
     for i in items:
         title = i('a', {'class':'video-link'})[1].h3.string.encode('utf-8')
