@@ -1,3 +1,6 @@
+Version 1.0.7
+Changed author, divingmule did not respond to pull requests
+
 Version 1.0.6
 Now using different scraping backend, should cope with engadget's bad html
 
