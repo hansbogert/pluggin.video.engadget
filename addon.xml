@@ -1,4 +1,5 @@
 ﻿<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!-- Original author: divingmule-->
 <addon id="plugin.video.engadget"
        name="Engadget"
        version="1.0.7"
@@ -23,7 +24,7 @@
     <platform>all</platform>
     <language>en</language>
     <license>GNU GENERAL PUBLIC LICENSE. Version 2, June 1991</license>
-    <source>https://github.com/divingmule/pluggin.video.engadget</source>
+    <source>https://github.com/hansbogert/plugin.video.engadget</source>
     <forum>http://forum.xbmc.org/showthread.php?tid=178562</forum>
   </extension>
 </addon>

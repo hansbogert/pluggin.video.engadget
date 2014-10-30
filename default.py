@@ -1,3 +1,10 @@
+__author__ = "divingmule, and Hans van den Bogert"
+__copyright__ = "Copyright 2013"
+__license__ = "GPL"
+__version__ = "2"
+__maintainer__ = "Hans van den Bogert"
+__email__ = "hansbogert@gmail.com"
+
 import os
 import urllib
 import urllib2
