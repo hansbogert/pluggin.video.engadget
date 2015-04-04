@@ -16,6 +16,7 @@ import xbmcgui
 import xbmcaddon
 from urlparse import urlparse, parse_qs
 from traceback import format_exc
+import sys
 
 addon = xbmcaddon.Addon()
 addon_profile = xbmc.translatePath(addon.getAddonInfo('profile'))
@@ -124,7 +125,7 @@ def resolve_url(url):
                 addon_log('Resolved: %s' % resolved_url)
             except:
                 addon_log('addonException: %s' % format_exc())
-                addon_log('Setting unavailabel: %s' % settings[preferred])
+                addon_log('Setting unavailable: %s' % settings[preferred])
                 preferred -= 1
         return resolved_url
 
@@ -185,14 +186,14 @@ def cache_playlist(video_id):
         addon_log('addonException: %s' % format_exc())
 
 
-def add_dir(name, url, iconimage, mode, isfolder=True):
+def add_dir(name, url, icon_image, mode, is_folder=True):
     params = {'name': name, 'url': url, 'mode': mode}
     url = '%s?%s' % (sys.argv[0], urllib.urlencode(params))
-    listitem = xbmcgui.ListItem(name, iconImage="DefaultFolder.png", thumbnailImage=iconimage)
-    if not isfolder:
-        listitem.setProperty('IsPlayable', 'true')
-    listitem.setInfo(type="Video", infoLabels={'Title': name})
-    xbmcplugin.addDirectoryItem(int(sys.argv[1]), url, listitem, isfolder)
+    list_item = xbmcgui.ListItem(name, iconImage="DefaultFolder.png", thumbnailImage=icon_image)
+    if not is_folder:
+        list_item.setProperty('IsPlayable', 'true')
+    list_item.setInfo(type="Video", infoLabels={'Title': name})
+    xbmcplugin.addDirectoryItem(int(sys.argv[1]), url, list_item, is_folder)
 
 
 def get_params():
