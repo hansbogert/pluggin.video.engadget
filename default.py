@@ -141,8 +141,10 @@ def cache_playlist(video_id):
     script_html2 = script_html.replace('</scr" + "ipt>"',"")
     script_soup = BeautifulSoup(script_html2, 'html.parser')
     script = script_soup.script.get_text()
-    #FIXME: There is a security risk in eval() because the originating text stems from the server <>
-    script_params = eval((script[5:].replace('\r\n', '').split('+')[0]+'}'))
+    #FIXME: There is a security risk in eval() because the originating text stems from the server 
+    # Why the original author ever wanted to include a javascript snippet, which happens to be valid
+    # python syntax, is beyond me
+    script_params = eval((script[5:].replace('\r\n', '').split(';')[0]))
     params = {
         'ExposureType': 'PlayerSeed',
         'autoStart': script_params['autoStart'],
