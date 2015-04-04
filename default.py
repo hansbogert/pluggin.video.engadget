@@ -103,7 +103,7 @@ def resolve_url(url):
         }
     preferred = int(addon.getSetting('preferred'))
     video_id = url.split('/')[-1]
-    item = None
+
     try:
         link_cache = eval(cache.get('link_cache'))
         item = [(i[video_id]['url'], i[video_id]['ren']) for i in link_cache if video_id in i][0]
