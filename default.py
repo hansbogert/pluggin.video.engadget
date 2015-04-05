@@ -92,11 +92,10 @@ def display_category(url):
         link = i('a', {'class': 'video-link'})[1]['href']
         img = i('a', {'class': 'video-link'})[0].img['src']
         add_dir(title, link, img, 'resolve_url', False)
-    try:
-        next_page = soup.find('li', class_='older').a['href']
-        add_dir(language(30008), next_page, icon, 'get_category')
-    except:
-        pass
+
+    next_page = soup.find('li', class_='older').a['href']
+    add_dir(language(30008), next_page, icon, 'get_category')
+
     cache.set('page_url', page_url)
 
 
@@ -114,7 +113,7 @@ def resolve_url(url):
         link_cache = eval(cache.get('link_cache'))
         cached_item = [(i[video_id]['url'], i[video_id]['ren']) for i in link_cache if video_id in i][0]
         addon_log('return item from cache')
-    except:
+    except IndexError:  # If not at least one item was found i.e. [0] is non-existent, then
         addon_log('addonException: %s' % format_exc())
         cached_item = cache_playlist(video_id)
     if cached_item:
@@ -128,7 +127,7 @@ def resolve_url(url):
                     (i['ID'], i['RenditionType']) for i in cached_item[1] if i['ID'] in settings[preferred]][0]
                 resolved_url = stream_url + extension_format % (ren_id, ren_type)
                 addon_log('Resolved: %s' % resolved_url)
-            except:
+            except IndexError:  # Assume that if we couldn't access [0], it isn't available
                 addon_log('addonException: %s' % format_exc())
                 addon_log('Setting unavailable: %s' % settings[preferred])
                 preferred -= 1
@@ -168,26 +167,23 @@ def cache_playlist(video_id):
     data = json.loads(make_request(url + urllib.urlencode(url_params)), 'utf-8')
     items = data['binding']
     pattern = re.compile('videoUrl=(.+?)&')
-    try:
-        link_cache = eval(cache.get('link_cache'))
-        if len(link_cache) > 300:
-            del link_cache[:100]
-    except:
-        addon_log('addonException: %s' % format_exc())
-        link_cache = []
+    link_cache = eval(cache.get('link_cache'))
+    if len(link_cache) > 300:
+        del link_cache[:100]
+
     for i in items:
         match = pattern.findall(i['EmbededURL'])
         try:
             item_dict = {str(i['ID']): {'url': match[0],
                                         'ren': i['Renditions']}}
             link_cache.append(item_dict)
-        except:
+        except (KeyError, IndexError):
             addon_log('addonException: %s' % format_exc())
     cache.set('link_cache', repr(link_cache))
     addon_log('link_cache items %s' % len(link_cache))
     try:
         return [(i[video_id]['url'], i[video_id]['ren']) for i in link_cache if video_id in i][0]
-    except:
+    except IndexError:
         addon_log('addonException: %s' % format_exc())
 
 
