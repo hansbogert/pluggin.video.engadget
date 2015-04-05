@@ -208,25 +208,28 @@ def get_params():
     return p
 
 
-params = get_params()
-addon_log(repr(params))
+def main():
+    params = get_params()
+    addon_log(repr(params))
 
-mode = params.get('mode')
+    mode = params.get('mode')
 
-if mode is None:
-    display_categories()
-    xbmcplugin.endOfDirectory(int(sys.argv[1]))
+    if mode is None:
+        display_categories()
+        xbmcplugin.endOfDirectory(int(sys.argv[1]))
 
-elif mode == 'get_category':
-    display_category(params['url'])
-    xbmcplugin.endOfDirectory(int(sys.argv[1]))
+    elif mode == 'get_category':
+        display_category(params['url'])
+        xbmcplugin.endOfDirectory(int(sys.argv[1]))
+    elif mode == 'resolve_url':
+        success = False
+        resolved_url = resolve_url(params['url'])
+        if resolved_url:
+            success = True
+        else:
+            resolved_url = ''
+        item = xbmcgui.ListItem(path=resolved_url)
+        xbmcplugin.setResolvedUrl(int(sys.argv[1]), success, item)
 
-elif mode == 'resolve_url':
-    success = False
-    resolved_url = resolve_url(params['url'])
-    if resolved_url:
-        success = True
-    else:
-        resolved_url = ''
-    item = xbmcgui.ListItem(path=resolved_url)
-    xbmcplugin.setResolvedUrl(int(sys.argv[1]), success, item)
+if __name__ == "__main__":
+    main()
