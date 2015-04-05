@@ -1,5 +1,5 @@
 __author__ = "divingmule, and Hans van den Bogert"
-__copyright__ = "Copyright 2013"
+__copyright__ = "Copyright 2015"
 __license__ = "GPL"
 __version__ = "2"
 __maintainer__ = "Hans van den Bogert"
