@@ -36,9 +36,14 @@ base_url = 'http://www.engadget.com'
 
 
 def addon_log(string):
+
+    """
+
+    :type string: string
+    """
     try:
         log_message = string.encode('utf-8', 'ignore')
-    except:
+    except UnicodeEncodeError:
         log_message = 'addonException: addon_log'
     xbmc.log("[%s-%s]: %s" % (addon_id, addon_version, log_message), level=xbmc.LOGDEBUG)
 
@@ -206,10 +211,7 @@ def get_params():
 params = get_params()
 addon_log(repr(params))
 
-try:
-    mode = params['mode']
-except:
-    mode = None
+mode = params.get('mode')
 
 if mode is None:
     display_categories()
