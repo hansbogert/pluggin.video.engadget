@@ -112,20 +112,20 @@ def resolve_url(url):
 
     try:
         link_cache = eval(cache.get('link_cache'))
-        item = [(i[video_id]['url'], i[video_id]['ren']) for i in link_cache if video_id in i][0]
+        cached_item = [(i[video_id]['url'], i[video_id]['ren']) for i in link_cache if video_id in i][0]
         addon_log('return item from cache')
     except:
         addon_log('addonException: %s' % format_exc())
-        item = cache_playlist(video_id)
-    if item:
+        cached_item = cache_playlist(video_id)
+    if cached_item:
         extension_format = '_%s.%s?cat=Tech&subcat=Web'
-        stream_url = urllib.unquote(item[0]).split('.mp4')[0]
+        stream_url = urllib.unquote(cached_item[0]).split('.mp4')[0]
         addon_log('preferred setting: %s' % settings[preferred])
         resolved_url = None
         while (preferred >= 0) and not resolved_url:
             try:
                 ren_id, ren_type = [
-                    (i['ID'], i['RenditionType']) for i in item[1] if i['ID'] in settings[preferred]][0]
+                    (i['ID'], i['RenditionType']) for i in cached_item[1] if i['ID'] in settings[preferred]][0]
                 resolved_url = stream_url + extension_format % (ren_id, ren_type)
                 addon_log('Resolved: %s' % resolved_url)
             except:
@@ -147,7 +147,7 @@ def cache_playlist(video_id):
     # Why the original author ever wanted to include a javascript snippet, which happens to be valid
     # python syntax, is beyond me
     script_params = eval((script[5:].replace('\r\n', '').split(';')[0]))
-    params = {
+    url_params = {
         'ExposureType': 'PlayerSeed',
         'autoStart': script_params['autoStart'],
         'cbCount': '3',
@@ -165,7 +165,7 @@ def cache_playlist(video_id):
         'videoCount': '50',
         'videoGroupID': script_params['videoGroupID']
         }
-    data = json.loads(make_request(url + urllib.urlencode(params)), 'utf-8')
+    data = json.loads(make_request(url + urllib.urlencode(url_params)), 'utf-8')
     items = data['binding']
     pattern = re.compile('videoUrl=(.+?)&')
     try:
@@ -191,9 +191,9 @@ def cache_playlist(video_id):
         addon_log('addonException: %s' % format_exc())
 
 
-def add_dir(name, url, icon_image, mode, is_folder=True):
-    params = {'name': name, 'url': url, 'mode': mode}
-    url = '%s?%s' % (sys.argv[0], urllib.urlencode(params))
+def add_dir(name, url, icon_image, dir_mode, is_folder=True):
+    dir_params = {'name': name, 'url': url, 'mode': dir_mode}
+    url = '%s?%s' % (sys.argv[0], urllib.urlencode(dir_params))
     list_item = xbmcgui.ListItem(name, iconImage="DefaultFolder.png", thumbnailImage=icon_image)
     if not is_folder:
         list_item.setProperty('IsPlayable', 'true')
