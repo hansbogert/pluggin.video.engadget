@@ -11,10 +11,11 @@ import urllib2
 import re
 import json
 import StorageServer
+import xbmc
 import xbmcplugin
 import xbmcgui
 import xbmcaddon
-from urlparse import urlparse, parse_qs
+from urlparse import parse_qs
 from traceback import format_exc
 import sys
 
@@ -25,8 +26,7 @@ addon_id = addon.getAddonInfo('id')
 addon_dir = xbmc.translatePath(addon.getAddonInfo('path'))
 sys.path.append(os.path.join(addon_dir, 'resources', 'lib'))
 
-# Do extra imports including html5lib from local addon dir
-import html5lib
+# Do extra imports including from local addon dir
 from bs4 import BeautifulSoup
 
 cache = StorageServer.StorageServer("engadget", 24)
