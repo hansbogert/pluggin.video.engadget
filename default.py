@@ -108,6 +108,7 @@ def resolve_url(url):
         }
     preferred = int(addon.getSetting('preferred'))
     video_id = url.split('/')[-1]
+    addon_log('video ID: {0}'.format(video_id))
 
     try:
         link_cache = eval(cache.get('link_cache'))
@@ -137,6 +138,7 @@ def resolve_url(url):
 def cache_playlist(video_id):
     url = 'http://syn.5min.com/handlers/SenseHandler.ashx?'
     script_url = 'http://www.engadget.com/embed-5min/?playList=%s&autoStart=true' % video_id
+    addon_log("Get script: " + script_url)
     script_html = make_request(script_url)
     # workaround: soup dies on the script tag
     script_html2 = script_html.replace('</scr" + "ipt>"', "")
@@ -164,6 +166,7 @@ def cache_playlist(video_id):
         'videoCount': '50',
         'videoGroupID': script_params['videoGroupID']
         }
+    addon_log("complete url: " + url + urllib.urlencode(url_params))
     data = json.loads(make_request(url + urllib.urlencode(url_params)), 'utf-8')
     items = data['binding']
     pattern = re.compile('videoUrl=(.+?)&')
@@ -173,6 +176,7 @@ def cache_playlist(video_id):
 
     for i in items:
         match = pattern.findall(i['EmbededURL'])
+        addon_log("Regexp matches for videoUrl: " + match[0])
         try:
             item_dict = {str(i['ID']): {'url': match[0],
                                         'ren': i['Renditions']}}
@@ -182,7 +186,9 @@ def cache_playlist(video_id):
     cache.set('link_cache', repr(link_cache))
     addon_log('link_cache items %s' % len(link_cache))
     try:
-        return [(i[video_id]['url'], i[video_id]['ren']) for i in link_cache if video_id in i][0]
+        video_url = [(i[video_id]['url'], i[video_id]['ren']) for i in link_cache if video_id in i][0]
+        addon_log(str(video_url))
+        return video_url
     except IndexError:
         addon_log('addonException: %s' % format_exc())
 
