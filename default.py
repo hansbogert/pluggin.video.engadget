@@ -118,15 +118,16 @@ def resolve_url(url):
         addon_log('addonException: %s' % format_exc())
         cached_item = cache_playlist(video_id)
     if cached_item:
-        extension_format = '_%s.%s?cat=Tech&subcat=Web'
-        stream_url = urllib.unquote(cached_item[0]).split('.mp4')[0]
+        stream_url = urllib.unquote(cached_item[0])
         addon_log('preferred setting: %s' % settings[preferred])
         resolved_url = None
         while (preferred >= 0) and not resolved_url:
             try:
                 ren_id, ren_type = [
                     (i['ID'], i['RenditionType']) for i in cached_item[1] if i['ID'] in settings[preferred]][0]
-                resolved_url = stream_url + extension_format % (ren_id, ren_type)
+                # Adhere to 5min's format, their base URL is always an MP4, but depending on the rendition type you
+                # need the following to get an actual working URL
+                resolved_url = stream_url.replace(".mp4", "_{0}.{1}".format(ren_id, ren_type))
                 addon_log('Resolved: %s' % resolved_url)
             except IndexError:  # Assume that if we couldn't access [0], it isn't available
                 addon_log('addonException: %s' % format_exc())
