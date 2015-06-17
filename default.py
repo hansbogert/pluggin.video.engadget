@@ -112,21 +112,29 @@ def resolve_url(url):
     video_id = url.split('/')[-1]
     addon_log('video ID: {0}'.format(video_id))
 
+    # TODO Caching should not be the concern of the function itself.
     try:
         link_cache = eval(cache.get('link_cache'))
-        cached_item = [(i[video_id]['url'], i[video_id]['ren']) for i in link_cache if video_id in i][0]
-        addon_log('return item from cache')
-    except IndexError:  # If not at least one item was found i.e. [0] is non-existent, then
+        addon_log('Link cache loaded')
+    except SyntaxError:
+        link_cache = {}
         addon_log('addonException: %s' % format_exc())
-        cached_item = cache_playlist(video_id)
+
+    if video_id not in link_cache:
+        addon_log("video id not in cache, re-caching")
+        cache_playlist(video_id)
+        link_cache = eval(cache.get('link_cache'))
+
+    cached_item = link_cache[video_id]
+
     if cached_item:
-        stream_url = urllib.unquote(cached_item[0])
+        stream_url = urllib.unquote(cached_item['url'])
         addon_log('preferred setting: %s' % settings[preferred])
         resolved_url = None
         while (preferred >= 0) and not resolved_url:
             try:
                 ren_id, ren_type = [
-                    (i['ID'], i['RenditionType']) for i in cached_item[1] if i['ID'] in settings[preferred]][0]
+                    (i['ID'], i['RenditionType']) for i in cached_item['ren'] if i['ID'] in settings[preferred]][0]
                 # Adhere to 5min's format, their base URL is always an MP4, but depending on the rendition type you
                 # need the following to get an actual working URL
                 resolved_url = stream_url.replace(".mp4", "_{0}.{1}".format(ren_id, ren_type))
@@ -174,7 +182,16 @@ def cache_playlist(video_id):
     data = json.loads(make_request(url + urllib.urlencode(url_params)), 'utf-8')
     items = data['binding']
     pattern = re.compile('videoUrl=(.+?)&')
-    link_cache = eval(cache.get('link_cache'))
+    # TODO Again, the caching - should not be here. This function should just get the file
+    try:
+        link_cache = eval(cache.get('link_cache'))
+    except SyntaxError:
+        # Cache is empty
+        link_cache = {}
+
+    if not isinstance(link_cache, dict):
+        link_cache = {}
+
     if len(link_cache) > 300:
         addon_log("cache too full, clearing older items")
         del link_cache[:200]
@@ -185,17 +202,11 @@ def cache_playlist(video_id):
         try:
             item_dict = {str(i['ID']): {'url': match[0],
                                         'ren': i['Renditions']}}
-            link_cache.append(item_dict)
+            link_cache.update(item_dict)
         except (KeyError, IndexError):
             addon_log('addonException: %s' % format_exc())
     cache.set('link_cache', repr(link_cache))
     addon_log('link_cache items %s' % len(link_cache))
-    try:
-        video_url = [(i[video_id]['url'], i[video_id]['ren']) for i in link_cache if video_id in i][0]
-        addon_log(str(video_url))
-        return video_url
-    except IndexError:
-        addon_log('addonException: %s' % format_exc())
 
 
 def add_dir(name, url, icon_image, dir_mode, is_folder=True):
