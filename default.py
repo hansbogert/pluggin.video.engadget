@@ -194,7 +194,7 @@ def cache_playlist(video_id):
 
     if len(link_cache) > 300:
         addon_log("cache too full, clearing older items")
-        del link_cache[:200]
+        link_cache.clear()
 
     for i in items:
         match = pattern.findall(i['EmbededURL'])
