@@ -29,7 +29,7 @@ sys.path.append(os.path.join(addon_dir, 'resources', 'lib'))
 # Do extra imports including from local addon dir
 from bs4 import BeautifulSoup
 
-cache = StorageServer.StorageServer("engadget", 24)
+cache = StorageServer.StorageServer("engadget", 1)
 icon = addon.getAddonInfo('icon')
 language = addon.getLocalizedString
 base_url = 'http://www.engadget.com'
