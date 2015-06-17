@@ -84,6 +84,7 @@ def display_categories():
 
 def display_category(url):
     page_url = base_url + url
+    addon_log("Display items for page_url: " + page_url)
     html = make_request(page_url)
     soup = BeautifulSoup(html, 'html5lib')
     items = soup('div', {'class': 'video-listing'})[0]('div', {'class': 'video'})
@@ -96,6 +97,7 @@ def display_category(url):
     next_page = soup.find('li', class_='older').a['href']
     add_dir(language(30008), next_page, icon, 'get_category')
 
+    addon_log("Setting cache for page_url: " + page_url)
     cache.set('page_url', page_url)
 
 
@@ -166,14 +168,16 @@ def cache_playlist(video_id):
         'url': urllib.quote(cache.get('page_url')),
         'videoCount': '50',
         'videoGroupID': script_params['videoGroupID']
-        }
+    }
+    addon_log("Cache for page_url was: " + cache.get('page_url'))
     addon_log("complete url: " + url + urllib.urlencode(url_params))
     data = json.loads(make_request(url + urllib.urlencode(url_params)), 'utf-8')
     items = data['binding']
     pattern = re.compile('videoUrl=(.+?)&')
     link_cache = eval(cache.get('link_cache'))
     if len(link_cache) > 300:
-        del link_cache[:100]
+        addon_log("cache too full, clearing older items")
+        del link_cache[:200]
 
     for i in items:
         match = pattern.findall(i['EmbededURL'])
