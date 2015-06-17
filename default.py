@@ -70,7 +70,7 @@ def make_request(url):
 
 
 def cache_categories():
-    soup = BeautifulSoup(make_request(base_url + '/videos'), 'html.parser')
+    soup = BeautifulSoup(make_request(base_url + '/videos/'), 'html.parser')
     cat_items = soup.find('ul', class_='tab-nav')('a')
     cats = [{'name': i.string, 'href': i['href']} for i in cat_items]
     return cats
