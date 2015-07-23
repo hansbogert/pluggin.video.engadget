@@ -15,7 +15,7 @@ import xbmc
 import xbmcplugin
 import xbmcgui
 import xbmcaddon
-from urlparse import parse_qs
+from urlparse import parse_qs, parse_qsl
 from traceback import format_exc
 import sys
 
@@ -151,19 +151,14 @@ def cache_playlist(video_id):
     script_url = 'http://www.engadget.com/embed-5min/?playList=%s&autoStart=true' % video_id
     addon_log("Get script: " + script_url)
     script_html = make_request(script_url)
-    # workaround: soup dies on the script tag
-    script_html2 = script_html.replace('</scr" + "ipt>"', "")
-    script_soup = BeautifulSoup(script_html2, 'html.parser')
-    script = script_soup.script.get_text()
-    # FIXME: There is a security risk in eval() because the originating text stems from the server
-    # Why the original author ever wanted to include a javascript snippet, which happens to be valid
-    # python syntax, is beyond me
-    script_params = eval((script[5:].replace('\r\n', '').split(';')[0]))
+    script_soup = BeautifulSoup(script_html, 'html.parser')
+    param_list = parse_qsl(script_soup.script.attrs['src'].split("?")[1])
+    script_params = dict(param_list)
     url_params = {
         'ExposureType': 'PlayerSeed',
         'autoStart': script_params['autoStart'],
         'cbCount': '3',
-        'cbCustomID': script_params['cbCustomID'],
+        # 'cbCustomID': script_params['cbCustomID'], ## No longer included
         'colorPallet': script_params['colorPallet'],
         'counter': '0',
         'filterString': '',
