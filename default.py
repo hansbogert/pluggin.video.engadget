@@ -177,7 +177,7 @@ def cache_playlist(video_id):
     data = json.loads(make_request(url + urllib.urlencode(url_params)), 'utf-8')
     items = data['binding']
     pattern = re.compile('videoUrl=(.+?)&')
-    # TODO Again, the caching - should not be here. This function should just get the file
+    #   TODO Again, the caching - should not be here. This function should just get the file
     try:
         link_cache = eval(cache.get('link_cache'))
     except SyntaxError:
