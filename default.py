@@ -21,6 +21,7 @@ __maintainer__ = "Hans van den Bogert"
 __email__ = "hansbogert@gmail.com"
 
 addon = xbmcaddon.Addon()
+addon_name = addon.getAddonInfo('name')
 addon_profile = xbmc.translatePath(addon.getAddonInfo('profile'))
 addon_version = addon.getAddonInfo('version')
 addon_id = addon.getAddonInfo('id')
@@ -68,36 +69,39 @@ def make_request(url):
             addon_log('We failed with error code - %s.' % e.code)
 
 
-def cache_categories():
-    soup = BeautifulSoup(make_request(base_url + '/videos/'), 'html.parser')
-    cat_items = soup.select('main section section')
-    addon_log("more?")
-    addon_log(str(cat_items[0].select("header a")[0].get('href')))
-    cats = [{'name': i.select("h2")[0].string.strip(), 'href': i.select("header a")[0].get('href')} for i in cat_items]
-    return cats
-
-
 def display_all_items():
+    def get_item_as_tuple(item):
+        title = item['title']
+        embed_html = None
+        video_url = None
+        image_url = None
+
+        for i in item['media_content']:
+
+            if i['media_medium'] == "image":
+                image_url = i['url']
+            elif i['media_medium'] == "video":
+                embed_html = i['media_html']
+                video_url = i['url']
+            else:
+                addon_log("Other format")
+
+        return title, embed_html, video_url, image_url
+
     feed_url = "http://feeds.contenthub.aol.com/syndication/2.0/feeds/article" \
-        "?sid=6d83dd23075648c2924a6469c80026c7&articleText=7"
+        "?sid=6d83dd23075648c2924a6469c80026c7&articleText=7&max=100"
     s_data = make_request(feed_url)
     addon_log("AOL feed data:" + str(s_data))
     json_data = json.loads(s_data)
 
+    items = [get_item_as_tuple(x) for x in (json_data['channel']['item'])]
+
+    # It is a video if a item tuple contains an video url
+    video_items = [x for x in items if x[1] is not None]
+
     # Big assumption here, the video is the 2nd item in the json list gotten by the AOL CDN
-    item_tuples = [(x['title'],
-                    x['media_content'][1]['media_html'],
-                    x['media_content'][1]['url'],
-                    x['media_content'][0]['url'])
-                   for x in (json_data['channel']['item'])
-                   if list_has_dict_with_video(x['media_content'])]
-    for (title, embed_url, url, image) in item_tuples:
+    for (title, embed_url, url, image) in video_items:
         add_dir(title, embed_url, url, image, 'resolve_url', False)
-
-
-def list_has_dict_with_video(input):
-    l = [y for y in input if y['media_medium'] == "video"]
-    return len(l) > 0
 
 
 def resolve_item(embed_url, url):
@@ -109,19 +113,20 @@ def resolve_item(embed_url, url):
         "www.youtube.com": retrieve_url_for_youtube,
 
     }
-    retriever = retrievers.get(domain, lambda: nothing)
+    retriever = retrievers.get(domain, nothing)
 
     addon_log("returning embed_url  and url for playback: " + embed_url + " " + url)
     return retriever(embed_url, url)
 
 
-def nothing():
+def nothing(embed_url, url):
+    xbmcgui.Dialog().ok(addon_name, "The video source is not playable")
     return None
 
 
 def retrieve_url_for_aol(embed_url, url):
     javascript_embed_tag = BeautifulSoup(embed_url, 'html.parser')
-    addon_log(javascript_embed_tag)
+    addon_log(str(javascript_embed_tag))
     javascript_source = javascript_embed_tag.find('script').get('src')
     addon_log("javascript source from embed code" + str(javascript_source))
     javascript_blob = make_request(javascript_source)
