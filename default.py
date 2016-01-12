@@ -119,6 +119,7 @@ def resolve_item(embed_url, url):
     return retriever(embed_url, url)
 
 
+# TODO: Not very functional, find a better place to pop up the Dialog.
 def nothing(embed_url, url):
     xbmcgui.Dialog().ok(addon_name, "The video source is not playable")
     return None
