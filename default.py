@@ -167,7 +167,7 @@ def retrieve_url_for_youtube(embed_url, url):
     qs = parse_qs(urlparse(url).query)
     video_id = qs['v'][0]
     addon_log("Youtube videoId:" + video_id)
-    return "plugin://plugin.video.youtube/?path=/root/video&action=play_video&videoid={0}".format(video_id)
+    return "plugin://plugin.video.youtube/play/?video_id={0}".format(video_id)
 
 
 def add_dir(name, embed_url, url, icon_image, dir_mode, is_folder=True):
