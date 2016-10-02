@@ -90,7 +90,12 @@ def display_all_items():
 
     feed_url = "http://feeds.contenthub.aol.com/syndication/2.0/feeds/article" \
         "?sid=6d83dd23075648c2924a6469c80026c7&articleText=7&max=100"
+
+    # Try two times to retrieve the feed. At moment of writing the contenthub seems to fail often.
     s_data = make_request(feed_url)
+    if s_data is None:
+        s_data = make_request(feed_url)
+
     addon_log("AOL feed data:" + str(s_data))
     json_data = json.loads(s_data)
 
