@@ -71,7 +71,7 @@ def make_request(url):
 
 def display_all_items():
     def get_item_as_tuple(item):
-        title = item['title']
+        item_title = item['title']
         embed_html = None
         video_url = None
         image_url = None
@@ -86,7 +86,7 @@ def display_all_items():
             else:
                 addon_log("Other format")
 
-        return title, embed_html, video_url, image_url
+        return item_title, embed_html, video_url, image_url
 
     feed_url = "http://feeds.contenthub.aol.com/syndication/2.0/feeds/article" \
         "?sid=6d83dd23075648c2924a6469c80026c7&articleText=7&max=100"
@@ -111,7 +111,7 @@ def resolve_item(embed_url, url):
     retrievers = {
         "on.aol.com": retrieve_url_for_aol,
         "www.youtube.com": retrieve_url_for_youtube,
-        #TODO: Taking the easy way out, this should be more robust.
+        # TODO: Taking the easy way out, this should be more robust.
         "": retrieve_url_for_vidible
 
     }
@@ -125,6 +125,7 @@ def resolve_item(embed_url, url):
 def nothing(embed_url, url):
     xbmcgui.Dialog().ok(addon_name, "The video source is not playable")
     return None
+
 
 def retrieve_url_for_vidible(embed_url, url):
     javascript_embed_tag = BeautifulSoup(embed_url, 'html.parser')
